@@ -1,0 +1,15 @@
+# Major versions verified to install and import together on Python 3.13 (Windows).
+pandas>=3.1,<4
+numpy>=2.5,<3
+scikit-learn>=1.9,<2
+imbalanced-learn>=0.14,<0.15
+xgboost>=3.4,<4
+shap>=0.54,<0.55
+matplotlib>=3.11,<4
+seaborn>=0.13,<0.14
+plotly>=7.1,<8
+streamlit>=1.66,<2
+joblib>=1.6,<2
+pyarrow>=26,<27
+openpyxl>=3.1,<4
+ipykernel>=7.4,<8

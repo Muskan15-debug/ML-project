@@ -1,0 +1,54 @@
+"""All project settings in one place. Other files import from here; no magic numbers elsewhere."""
+
+from pathlib import Path
+
+import pandas as pd
+
+# ---------- Paths ----------
+# PROJECT_ROOT is the folder that contains src/, so paths work no matter where we run from.
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
+DATA_DIR = PROJECT_ROOT / "data"
+RAW_DIR = DATA_DIR / "raw"
+PROCESSED_DIR = DATA_DIR / "processed"
+
+# The raw file can be the original Excel (.xlsx, two sheets) or a CSV export.
+RAW_FILE_CSV = RAW_DIR / "online_retail_II.csv"
+RAW_FILE_XLSX = RAW_DIR / "online_retail_II.xlsx"
+EXCEL_SHEETS = ["Year 2009-2010", "Year 2010-2011"]
+
+TRANSACTIONS_RAW_PARQUET = PROCESSED_DIR / "transactions_raw.parquet"
+
+MODELS_DIR = PROJECT_ROOT / "models"
+REPORTS_DIR = PROJECT_ROOT / "reports"
+FIGURES_DIR = REPORTS_DIR / "figures"
+TABLES_DIR = REPORTS_DIR / "tables"
+
+# ---------- Column names ----------
+# Original column name -> our clean snake_case name.
+COLUMN_RENAME = {
+    "Invoice": "invoice",
+    "StockCode": "stock_code",
+    "Description": "description",
+    "Quantity": "quantity",
+    "InvoiceDate": "invoice_date",
+    "Price": "price",
+    "Customer ID": "customer_id",
+    "Country": "country",
+}
+
+# ---------- Time split ----------
+# Two snapshots give an out-of-time test: train on the earlier one, test on the later one.
+# Features use only data BEFORE a cutoff; labels use only data AFTER it (no leakage).
+TRAIN_CUTOFF = pd.Timestamp("2010-12-01")
+TEST_CUTOFF = pd.Timestamp("2011-06-01")
+
+CHURN_WINDOW_DAYS = 90      # churn = no purchase in this many days after the cutoff
+SPEND_WINDOW_MONTHS = 6     # future spend = total spend in this many months after the cutoff
+
+# ---------- Reproducibility ----------
+RANDOM_STATE = 42
+
+# ---------- Business assumptions (NOT from data; change if you have real values) ----------
+OFFER_COST = 5.0            # ASSUMPTION: cost in GBP of sending one retention offer
+OFFER_RESPONSE_RATE = 0.20  # ASSUMPTION: share of contacted churners the offer actually retains
