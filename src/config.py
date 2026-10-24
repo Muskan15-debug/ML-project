@@ -63,6 +63,11 @@ TEST_CUTOFF = pd.Timestamp("2011-06-01")
 CHURN_WINDOW_DAYS = 90      # churn = no purchase in this many days after the cutoff
 SPEND_WINDOW_MONTHS = 6     # future spend = total spend in this many months after the cutoff
 
+# Customer base = ACTIVE customers only: at least one purchase in this many days before the cutoff.
+# Customers gone for a year or more are trivially "churned" and would inflate the churn rate.
+# Features still use the full history; only the set of customers is filtered.
+ACTIVE_WINDOW_DAYS = 180
+
 # Candidate train cutoffs compared in the Phase 2 seasonality check.
 CANDIDATE_TRAIN_CUTOFFS = [
     pd.Timestamp("2010-06-01"),

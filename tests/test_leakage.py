@@ -10,7 +10,7 @@ sys.path.append(str(Path(__file__).resolve().parent.parent / "src"))
 import config
 from feature_builder import build_features
 from labels import build_labels, label_window_ends
-from snapshots import load_clean_data
+from snapshots import build_snapshot, load_clean_data
 
 ALL_CUTOFFS = config.CANDIDATE_TRAIN_CUTOFFS + [config.TRAIN_CUTOFF, config.TEST_CUTOFF]
 
@@ -107,3 +107,21 @@ def test_labels_only_for_customers_seen_before_cutoff(data, cutoff):
     assert set(labels.index) == set(features.index)
     assert set(labels["churn"].unique()) <= {0, 1}
     assert (labels["future_spend"] >= 0).all()
+
+
+@pytest.mark.parametrize("cutoff", [config.TRAIN_CUTOFF, config.TEST_CUTOFF])
+def test_snapshot_contains_only_active_customers(data, cutoff):
+    """Every customer in a snapshot must have bought within ACTIVE_WINDOW_DAYS before the cutoff."""
+    transactions, cancellations = data
+    snapshot = build_snapshot(transactions, cancellations, cutoff)
+    assert len(snapshot) > 0
+    assert (snapshot["recency"] <= config.ACTIVE_WINDOW_DAYS).all()
+
+
+@pytest.mark.parametrize("path", [config.TRAIN_TABLE_PARQUET, config.TEST_TABLE_PARQUET])
+def test_saved_tables_contain_only_active_customers(path):
+    """The saved train/test tables must also respect the active-customer rule."""
+    if not path.exists():
+        pytest.skip(f"{path.name} not built yet")
+    table = pd.read_parquet(path)
+    assert (table["recency"] <= config.ACTIVE_WINDOW_DAYS).all()

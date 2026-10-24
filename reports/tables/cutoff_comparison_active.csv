@@ -1,0 +1,5 @@
+role,cutoff,ends_before_test,history_months,customers,churn_rate,spend_mean,spend_median,spend_zero_share,median_recency,baseline_precision,baseline_recall,baseline_f1,recency_roc_auc
+train?,2010-06-01,True,6.0,2652,0.5,1373.3,450.6,0.28,43.5,0.608,0.608,0.608,0.649
+train?,2010-09-01,True,9.0,2822,0.38,1254.9,380.8,0.316,57.3,0.477,0.628,0.542,0.636
+train?,2010-12-01,True,12.0,3465,0.62,793.6,127.8,0.461,34.5,0.726,0.585,0.648,0.661
+test,2011-06-01,True,18.0,2658,0.5,1444.3,406.6,0.298,48.4,0.628,0.628,0.628,0.66

@@ -1,5 +1,0 @@
-role,cutoff,label_windows_end,ends_before_test_cutoff,history_months,customers,churn_rate,future_spend_mean,future_spend_median,future_spend_zero_share
-train?,2010-06-01,2010-12-01,True,6.0,2684,0.503,1359.9,443.7,0.282
-train?,2010-09-01,2011-03-01,True,9.0,3299,0.417,1110.6,315.0,0.353
-train?,2010-12-01,2011-06-01,True,12.0,4239,0.668,669.9,0.0,0.517
-test,2011-06-01,2011-12-01,True,18.0,4908,0.671,868.1,92.6,0.481
