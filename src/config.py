@@ -63,6 +63,20 @@ TEST_CUTOFF = pd.Timestamp("2011-06-01")
 CHURN_WINDOW_DAYS = 90      # churn = no purchase in this many days after the cutoff
 SPEND_WINDOW_MONTHS = 6     # future spend = total spend in this many months after the cutoff
 
+# Candidate train cutoffs compared in the Phase 2 seasonality check.
+CANDIDATE_TRAIN_CUTOFFS = [
+    pd.Timestamp("2010-06-01"),
+    pd.Timestamp("2010-09-01"),
+    pd.Timestamp("2010-12-01"),
+]
+
+# ---------- Features ----------
+TREND_WINDOW_MONTHS = 3     # spend_trend compares the last 3 months with the earlier history
+HOME_COUNTRY = "United Kingdom"
+
+TRAIN_TABLE_PARQUET = PROCESSED_DIR / "train_table.parquet"
+TEST_TABLE_PARQUET = PROCESSED_DIR / "test_table.parquet"
+
 # ---------- Reproducibility ----------
 RANDOM_STATE = 42
 
