@@ -18,6 +18,8 @@ RAW_FILE_XLSX = RAW_DIR / "online_retail_II.xlsx"
 EXCEL_SHEETS = ["Year 2009-2010", "Year 2010-2011"]
 
 TRANSACTIONS_RAW_PARQUET = PROCESSED_DIR / "transactions_raw.parquet"
+TRANSACTIONS_CLEAN_PARQUET = PROCESSED_DIR / "transactions_clean.parquet"
+CANCELLATIONS_PARQUET = PROCESSED_DIR / "cancellations.parquet"
 
 MODELS_DIR = PROJECT_ROOT / "models"
 REPORTS_DIR = PROJECT_ROOT / "reports"
@@ -36,6 +38,21 @@ COLUMN_RENAME = {
     "Customer ID": "customer_id",
     "Country": "country",
 }
+
+# ---------- Cleaning ----------
+# Stock codes that are fees, postage, discounts, samples, tests etc. - not real products.
+# Chosen by checking every code that does not start with 5 digits (see Phase 1 output).
+# DCGS* and SP1002 are real products and are deliberately NOT in this list.
+NON_PRODUCT_CODES = [
+    "POST", "DOT", "M", "m", "C2", "C3", "D", "S", "B",
+    "BANK CHARGES", "ADJUST", "ADJUST2", "AMAZONFEE", "PADS",
+    "CRUK", "TEST001", "TEST002", "GIFT",
+]
+# Gift vouchers look like gift_0001_10, gift_0001_20, ... - matched by prefix.
+NON_PRODUCT_PREFIXES = ["gift_"]
+
+CANCELLED_INVOICE_PREFIX = "C"     # invoices starting with C are cancellations/returns
+BAD_DEBT_INVOICE_PREFIX = "A"      # invoices starting with A are bad-debt adjustments
 
 # ---------- Time split ----------
 # Two snapshots give an out-of-time test: train on the earlier one, test on the later one.

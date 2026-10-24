@@ -14,7 +14,8 @@
 - Never invent or guess numbers, metrics or results. Only report what the code actually printed.
 - If something in the spec is ambiguous or impossible, stop and ask me before choosing.
 - If a library is missing, install it with pip and add it to requirements.txt.
-- After each phase, make a git commit with message "Phase N: <short description>".
+-  Do NOT run any git commands (commit, add, push, branch, reset, checkout, etc.) on your own.
+  I will handle all git operations myself. At the end of a phase, just suggest a commit message.
 
 ## Code rules
 - Python 3.10+. Use pandas, numpy, scikit-learn, imbalanced-learn, xgboost, shap,

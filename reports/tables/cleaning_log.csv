@@ -1,0 +1,8 @@
+step,rows_removed
+cancelled invoices (start with 'C'),19494
+bad-debt adjustment invoices (start with 'A'),6
+missing customer_id (guest checkout),242251
+"non-product stock codes (fees, postage, adjustments...)",2925
+quantity <= 0,0
+price <= 0,61
+exact duplicate rows,26055
