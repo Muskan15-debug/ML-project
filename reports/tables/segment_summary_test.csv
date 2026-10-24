@@ -1,0 +1,5 @@
+segment_name,customers,avg_recency,avg_frequency,avg_monetary,churn_rate,avg_future_spend,share_of_customers
+Champions,705,29.825,18.655,10527.89,0.191,4027.031,0.265
+Loyal,825,43.769,5.204,1780.179,0.485,711.475,0.31
+One-off buyers,507,42.341,1.558,388.828,0.692,338.908,0.191
+Lost,621,134.092,3.33,1001.547,0.715,388.303,0.234

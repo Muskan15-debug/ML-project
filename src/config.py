@@ -79,6 +79,13 @@ CANDIDATE_TRAIN_CUTOFFS = [
 TREND_WINDOW_MONTHS = 3     # spend_trend compares the last 3 months with the earlier history
 HOME_COUNTRY = "United Kingdom"
 
+# ---------- Segmentation ----------
+RFM_COLUMNS = ["recency", "frequency", "monetary"]
+RFM_LOG_COLUMNS = ["frequency", "monetary"]   # very skewed (skew 8.8 and 21.6), so log1p them
+K_RANGE = range(2, 11)                        # k values tried for the elbow / silhouette check
+N_SEGMENTS = 4                                # chosen from elbow + silhouette (see notebook 02)
+SEGMENTATION_MODEL = MODELS_DIR / "segmentation.pkl"
+
 TRAIN_TABLE_PARQUET = PROCESSED_DIR / "train_table.parquet"
 TEST_TABLE_PARQUET = PROCESSED_DIR / "test_table.parquet"
 
