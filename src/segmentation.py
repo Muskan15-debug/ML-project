@@ -62,7 +62,7 @@ def name_clusters(train_df, cluster_ids):
     """Give each cluster a name by ranking the clusters' average RFM values.
 
     Rule (chosen after looking at the real k=4 averages, see notebook 02):
-      - the cluster with the highest average recency (longest since last order) -> "Lost"
+      - the cluster with the highest average recency (longest since last order) -> "At-Risk"
       - of the rest, the highest average frequency -> "Champions"
       - of the rest, the lowest average frequency  -> "One-off buyers"
       - any cluster in between                      -> "Loyal" (numbered if more than one)
@@ -71,10 +71,10 @@ def name_clusters(train_df, cluster_ids):
     """
     means = train_df[config.RFM_COLUMNS].groupby(cluster_ids).mean()
     names = {}
-    lost = means["recency"].idxmax()
-    names[int(lost)] = "Lost"
+    at_risk = means["recency"].idxmax()
+    names[int(at_risk)] = "At-Risk"
 
-    rest = means.drop(index=lost).sort_values("frequency", ascending=False)
+    rest = means.drop(index=at_risk).sort_values("frequency", ascending=False)
     names[int(rest.index[0])] = "Champions"
     if len(rest) > 1:
         names[int(rest.index[-1])] = "One-off buyers"

@@ -1,0 +1,6 @@
+,n_features,precision,recall,f1,roc_auc,pr_auc,mean_predicted_prob
+Segment only,4,0.612,0.898,0.728,0.724,0.659,0.566
+RFM only,3,0.664,0.771,0.713,0.76,0.738,0.545
+RFM + segment,7,0.657,0.789,0.717,0.76,0.738,0.543
+All features without segment,12,0.671,0.747,0.707,0.763,0.745,0.526
+All features with segment,16,0.669,0.749,0.707,0.763,0.745,0.526

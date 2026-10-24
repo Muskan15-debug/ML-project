@@ -1,0 +1,17 @@
+,MI (churn),ANOVA F (churn),RFE-LogReg (churn),RF importance (churn),L1-logistic (churn),MI (spend),f_regression (spend),RF importance (spend),Lasso (spend),votes_churn,votes_spend
+recency,0,1,1,1,1,0,0,1,1,4,2
+frequency,1,1,1,1,1,1,1,1,0,5,3
+monetary,1,1,1,1,1,1,1,1,1,5,4
+avg_order_value,0,0,1,1,0,1,0,1,1,2,3
+avg_gap_days,0,0,1,1,1,1,0,1,1,3,3
+tenure_days,1,1,1,1,1,0,1,1,1,5,3
+unique_products,1,1,0,1,0,1,1,1,1,3,4
+return_rate,1,0,0,0,1,1,0,0,1,2,2
+spend_trend,1,0,1,0,1,0,0,0,1,3,1
+purchase_regularity,1,1,1,1,1,1,1,1,1,5,4
+is_uk,0,0,0,0,1,0,0,0,1,1,1
+is_single_order,0,1,0,0,1,0,1,0,1,2,2
+seg_At-Risk,0,0,0,0,1,0,0,0,0,1,0
+seg_Champions,1,1,0,0,1,1,1,0,1,3,3
+seg_Loyal,0,0,0,0,1,0,0,0,1,1,1
+seg_One-off buyers,0,0,0,0,0,0,1,0,1,0,2

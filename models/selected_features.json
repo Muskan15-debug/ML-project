@@ -1,0 +1,30 @@
+{
+  "churn": [
+    "frequency",
+    "monetary",
+    "purchase_regularity",
+    "tenure_days",
+    "recency",
+    "seg_Champions",
+    "unique_products",
+    "spend_trend"
+  ],
+  "spend": [
+    "monetary",
+    "purchase_regularity",
+    "unique_products",
+    "frequency",
+    "seg_Champions",
+    "avg_gap_days",
+    "avg_order_value",
+    "tenure_days"
+  ],
+  "log1p_features": [
+    "frequency",
+    "monetary",
+    "avg_order_value",
+    "unique_products",
+    "purchase_regularity"
+  ],
+  "segment_column": "segment_name"
+}

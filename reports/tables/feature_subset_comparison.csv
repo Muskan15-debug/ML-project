@@ -1,0 +1,4 @@
+,n_features,precision,recall,f1,roc_auc,pr_auc,mean_predicted_prob
+"Recency only (baseline, threshold = train median)",1,0.607,0.714,0.657,0.66,0.642,
+LogReg - all features,16,0.669,0.749,0.707,0.763,0.745,0.526
+LogReg - selected features,8,0.655,0.802,0.721,0.764,0.742,0.548

@@ -86,6 +86,15 @@ K_RANGE = range(2, 11)                        # k values tried for the elbow / s
 N_SEGMENTS = 4                                # chosen from elbow + silhouette (see notebook 02)
 SEGMENTATION_MODEL = MODELS_DIR / "segmentation.pkl"
 
+# ---------- Feature selection ----------
+# Features with skew > 2 on TRAIN (frequency 8.8, monetary 21.6, avg_order_value 12.0,
+# unique_products 5.9, purchase_regularity 2.1). log1p makes them usable for linear models.
+LOG1P_FEATURES = ["frequency", "monetary", "avg_order_value", "unique_products", "purchase_regularity"]
+SEGMENT_COLUMN = "segment_name"
+N_SELECTED_FEATURES = 8           # each ranking method keeps its top 8
+SEGMENT_ENCODER = MODELS_DIR / "segment_encoder.pkl"
+SELECTED_FEATURES_JSON = MODELS_DIR / "selected_features.json"
+
 TRAIN_TABLE_PARQUET = PROCESSED_DIR / "train_table.parquet"
 TEST_TABLE_PARQUET = PROCESSED_DIR / "test_table.parquet"
 
