@@ -117,6 +117,11 @@ TEST_TABLE_PARQUET = PROCESSED_DIR / "test_table.parquet"
 # ---------- Final model choices (selected in notebooks 04 and 05 by CV on TRAIN) ----------
 FINAL_CHURN_MODEL = "XGBoost"
 FINAL_CHURN_IMBALANCE = "none"
+# Phase 9b: churn probability sometimes went DOWN as recency went up. Monotonic constraints force
+# +1 = risk can only rise with this feature, -1 = risk can only fall. Kept because train CV ROC-AUC
+# dropped by only 0.0023 (rule: keep if within 0.005).
+CHURN_MONOTONE_CONSTRAINTS = {"recency": 1, "frequency": -1, "monetary": -1, "tenure_days": -1}
+MONOTONE_MAX_CV_DROP = 0.005
 # The spend model is the two-part model; its two parts are re-chosen by TRAIN CV inside train.py.
 
 # ---------- Prediction (app) ----------

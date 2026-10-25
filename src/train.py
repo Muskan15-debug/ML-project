@@ -109,11 +109,11 @@ def main():
     print(f"  churn features: {selected['churn']}")
     print(f"  spend features: {selected['spend']}")
 
-    step(f"5/8 Churn model: {config.FINAL_CHURN_MODEL} | {config.FINAL_CHURN_IMBALANCE}")
+    step(f"5/8 Churn model: {config.FINAL_CHURN_MODEL} | {config.FINAL_CHURN_IMBALANCE} | monotonic")
     X_train, y_train, _, _, _, _ = churn_models.load_churn_data()
     model, cv_score, params = churn_models.fit_with_cv(config.FINAL_CHURN_MODEL, config.FINAL_CHURN_IMBALANCE,
-                                                       X_train, y_train)
-    churn_models.save_churn_model(model, f"{config.FINAL_CHURN_MODEL} | {config.FINAL_CHURN_IMBALANCE}",
+                                                       X_train, y_train, monotone=config.CHURN_MONOTONE_CONSTRAINTS)
+    churn_models.save_churn_model(model, f"{config.FINAL_CHURN_MODEL} | {config.FINAL_CHURN_IMBALANCE} | monotonic",
                                   list(X_train.columns))
     print(f"  CV ROC-AUC on TRAIN {cv_score:.4f}, params {params}")
 

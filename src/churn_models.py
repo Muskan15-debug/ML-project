@@ -77,6 +77,11 @@ def make_model(name, imbalance, y_train):
     raise ValueError(f"Unknown model {name}")
 
 
+def monotone_tuple(columns, constraints):
+    """Turn {feature: +1/-1} into XGBoost's tuple, in column order (0 = no constraint)."""
+    return tuple(constraints.get(column, 0) for column in columns)
+
+
 def make_pipeline(name, imbalance, y_train):
     """Build an imblearn Pipeline: [scaler] -> [SMOTE] -> model.
 
@@ -97,12 +102,15 @@ def cv_splitter():
     return StratifiedKFold(n_splits=config.CV_FOLDS, shuffle=True, random_state=config.RANDOM_STATE)
 
 
-def fit_with_cv(name, imbalance, X_train, y_train):
+def fit_with_cv(name, imbalance, X_train, y_train, monotone=None):
     """Fit one model variant on TRAIN. Tuned models use GridSearchCV; others get a plain CV score.
 
+    monotone: optional {feature: +1/-1} constraints (XGBoost only).
     Returns (fitted pipeline, mean CV ROC-AUC on TRAIN, best params or None).
     """
     pipeline = make_pipeline(name, imbalance, y_train)
+    if monotone:
+        pipeline.set_params(model__monotone_constraints=monotone_tuple(X_train.columns, monotone))
     if name in PARAM_GRIDS:
         search = GridSearchCV(pipeline, PARAM_GRIDS[name], scoring=config.CV_SCORING, cv=cv_splitter(),
                           n_jobs=config.N_JOBS)

@@ -61,11 +61,11 @@ def test_customers_from_test_table(test_table, position):
 
 def test_same_pipeline_as_training(test_table):
     """With all values given, the app's probabilities equal the saved model's scores on the test table."""
-    sample = test_table.iloc[:50]
-    batch = predict_batch(table_to_inputs(sample, include_regularity=True))
+    sample = test_table.iloc[:300]
+    batch = predict_batch(table_to_inputs(sample, include_regularity=True, exact=True))
     expected = decision_rules.score_customers(sample)["churn_probability"].round(3)
     got = batch.set_index("customer_id")["churn_probability"]
-    np.testing.assert_allclose(got.loc[expected.index].to_numpy(), expected.to_numpy(), atol=2e-3)
+    np.testing.assert_allclose(got.loc[expected.index].to_numpy(), expected.to_numpy(), atol=1e-3)
 
 
 def test_win_back_warning():

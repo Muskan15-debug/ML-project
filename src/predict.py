@@ -166,18 +166,26 @@ def build_feature_row(inputs, medians):
     return {name: features[name] for name in FEATURE_COLUMNS}, filled, warnings
 
 
-def table_to_inputs(table, include_regularity=False):
-    """Turn a customer feature table (e.g. the test table) into form-style inputs, one row per customer."""
+def table_to_inputs(table, include_regularity=False, exact=False):
+    """Turn a customer feature table (e.g. the test table) into form-style inputs, one row per customer.
+
+    Values are rounded like a person would type them, unless exact=True (used by tests that compare
+    the app with the training pipeline value for value).
+    """
+    def rounded(values, decimals):
+        return values if exact else values.round(decimals)
+
+    returned = table["return_rate"] * table["frequency"] / (1 - table["return_rate"])
     inputs = pd.DataFrame({
         "customer_id": table.index,
-        "recency": table["recency"].round(1).values,
+        "recency": rounded(table["recency"], 1).values,
         "frequency": table["frequency"].values,
-        "monetary": table["monetary"].round(2).values,
-        "tenure_days": table["tenure_days"].round(1).values,
+        "monetary": rounded(table["monetary"], 2).values,
+        "tenure_days": rounded(table["tenure_days"], 1).values,
         "unique_products": table["unique_products"].values,
-        "spend_last_3m": (table["spend_trend"] * table["monetary"]).round(2).values,
+        "spend_last_3m": rounded(table["spend_trend"] * table["monetary"], 2).values,
         # return_rate = returned / (orders + returned)  ->  returned = rate x orders / (1 - rate)
-        "returned_orders": (table["return_rate"] * table["frequency"] / (1 - table["return_rate"])).round().values,
+        "returned_orders": rounded(returned, 0).values,
         "is_uk": table["is_uk"].values,
     })
     if include_regularity:

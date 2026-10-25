@@ -23,8 +23,14 @@ import predict
 st.set_page_config(page_title="Churn & CLV Predictor", layout="wide")
 
 PROBABILITY_NOTE = "Probabilities run about 5 points high on recent data (see known issues)."
-SPEC_EXAMPLE = {"recency": 85, "frequency": 3, "monetary": 240.0, "tenure_days": 200, "unique_products": 6,
-                "spend_last_3m": 80.0, "returned_orders": 0, "is_uk": 1}
+# Example customers for the form. The first one shows a clear change when the recency slider moves.
+PRESETS = {
+    "Loyal customer, 8 orders (default)": {"recency": 60, "frequency": 8, "monetary": 3000.0, "tenure_days": 300,
+                                           "unique_products": 80, "spend_last_3m": 900.0, "returned_orders": 0,
+                                           "is_uk": 1},
+    "Spec section 9 example": {"recency": 85, "frequency": 3, "monetary": 240.0, "tenure_days": 200,
+                               "unique_products": 6, "spend_last_3m": 80.0, "returned_orders": 0, "is_uk": 1},
+}
 TREND_DAYS = config.TREND_WINDOW_MONTHS * config.DAYS_PER_MONTH
 
 
@@ -117,20 +123,26 @@ def show_filled_values(result):
 def tab_check_customer():
     """Form for one customer, then What-If sliders that update live."""
     st.subheader("Check a customer")
+    preset_name = st.selectbox("Start from an example customer", list(PRESETS))
+    preset = PRESETS[preset_name]
+    k = list(PRESETS).index(preset_name)        # widget keys change with the preset, so the form refills
     with st.form("customer_form"):
         c1, c2, c3, c4 = st.columns(4)
-        recency = c1.number_input("Days since last order", min_value=0, value=SPEC_EXAMPLE["recency"], step=1)
-        frequency = c2.number_input("Number of orders", min_value=1, value=SPEC_EXAMPLE["frequency"], step=1)
-        monetary = c3.number_input("Total spent (GBP)", min_value=0.0, value=SPEC_EXAMPLE["monetary"], step=10.0)
-        tenure = c4.number_input("Days since first order", min_value=0, value=SPEC_EXAMPLE["tenure_days"], step=1)
+        recency = c1.number_input("Days since last order", min_value=0, value=preset["recency"], step=1, key=f"rec{k}")
+        frequency = c2.number_input("Number of orders", min_value=1, value=preset["frequency"], step=1, key=f"frq{k}")
+        monetary = c3.number_input("Total spent (GBP)", min_value=0.0, value=preset["monetary"], step=10.0,
+                                   key=f"mon{k}")
+        tenure = c4.number_input("Days since first order", min_value=0, value=preset["tenure_days"], step=1,
+                                 key=f"ten{k}")
         c1, c2, c3, c4 = st.columns(4)
-        products = c1.number_input("Different products bought", min_value=0,
-                                   value=SPEC_EXAMPLE["unique_products"], step=1)
-        last_3m = c2.number_input("Spend in last 3 months (GBP)", min_value=0.0,
-                                  value=SPEC_EXAMPLE["spend_last_3m"], step=10.0)
-        returned = c3.number_input("Returned / cancelled orders", min_value=0,
-                                   value=SPEC_EXAMPLE["returned_orders"], step=1)
-        uk = c4.radio("Customer in UK?", ["Yes", "No"], horizontal=True)
+        products = c1.number_input("Different products bought", min_value=0, value=preset["unique_products"], step=1,
+                                   key=f"prd{k}")
+        last_3m = c2.number_input("Spend in last 3 months (GBP)", min_value=0.0, value=preset["spend_last_3m"],
+                                  step=10.0, key=f"l3m{k}")
+        returned = c3.number_input("Returned / cancelled orders", min_value=0, value=preset["returned_orders"], step=1,
+                                   key=f"ret{k}")
+        uk = c4.radio("Customer in UK?", ["Yes", "No"], index=0 if preset["is_uk"] else 1, horizontal=True,
+                      key=f"uk{k}")
         submitted = st.form_submit_button("Check customer", type="primary")
 
     if submitted:
@@ -147,7 +159,7 @@ def tab_check_customer():
     if "form_error" in st.session_state:
         st.error(f"Please check the inputs: {st.session_state['form_error']}")
     if "base_result" not in st.session_state:
-        st.info("Fill in the form and click **Check customer**. The example values are the customer from spec section 9.")
+        st.info("Pick an example (or type your own values) and click **Check customer**.")
         return
 
     base_inputs, base_result = st.session_state["base_inputs"], st.session_state["base_result"]
