@@ -237,3 +237,18 @@ def save_selected_features(churn_features, spend_features):
             "log1p_features": config.LOG1P_FEATURES, "segment_column": config.SEGMENT_COLUMN}
     config.SELECTED_FEATURES_JSON.write_text(json.dumps(data, indent=2))
     return data
+
+
+def run_feature_selection(train_df):
+    """Run every selection method on TRAIN, choose the churn and spend feature lists and save them.
+
+    Same steps as notebook 03, in one call (used by train.py).
+    """
+    encoder = fit_segment_encoder(train_df)
+    X = make_model_matrix(train_df, encoder)
+    y_churn, y_spend = churn_target(train_df), spend_target(train_df)
+    filters = filter_scores(X, y_churn, y_spend)
+    table = selection_table(filters, rfe_logistic(X, y_churn), embedded_scores(X, y_churn, y_spend))
+    churn_features = choose_features(table, filters, "votes_churn", "mi_churn")
+    spend_features = choose_features(table, filters, "votes_spend", "mi_spend")
+    return save_selected_features(churn_features, spend_features)

@@ -1,0 +1,17 @@
+{
+  "recency": 34.50694444444444,
+  "frequency": 3.0,
+  "monetary": 873.25,
+  "avg_order_value": 296.65,
+  "avg_gap_days": 54.03715277777778,
+  "tenure_days": 217.42777777777778,
+  "unique_products": 45.0,
+  "return_rate": 0.0,
+  "spend_trend": 0.44458609777348634,
+  "purchase_regularity": 9.880941824999406,
+  "is_uk": 1.0,
+  "is_single_order": 0.0,
+  "purchase_regularity_3plus_orders": 32.76658169252473,
+  "spend_trend_mixed_history": 0.39367501266997296,
+  "tenure_per_order_days": 53.18657407407408
+}

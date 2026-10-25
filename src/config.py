@@ -114,6 +114,17 @@ SPEND_MODEL = MODELS_DIR / "spend_model.pkl"
 TRAIN_TABLE_PARQUET = PROCESSED_DIR / "train_table.parquet"
 TEST_TABLE_PARQUET = PROCESSED_DIR / "test_table.parquet"
 
+# ---------- Final model choices (selected in notebooks 04 and 05 by CV on TRAIN) ----------
+FINAL_CHURN_MODEL = "XGBoost"
+FINAL_CHURN_IMBALANCE = "none"
+# The spend model is the two-part model; its two parts are re-chosen by TRAIN CV inside train.py.
+
+# ---------- Prediction (app) ----------
+TRAINING_MEDIANS_JSON = MODELS_DIR / "training_medians.json"
+VERDICT_THRESHOLD = 0.5           # churn probability >= 0.5 -> "Likely to leave"
+RISK_MEDIUM_THRESHOLD = 0.5       # Low < 0.5 <= Medium < risk_threshold (TRAIN median) <= High
+DAYS_PER_MONTH = 30.44            # to turn TREND_WINDOW_MONTHS into days for typed inputs
+
 # ---------- Reproducibility ----------
 RANDOM_STATE = 42
 
@@ -130,6 +141,7 @@ OFFER_RESPONSE_RATE = 0.20  # ASSUMPTION: share of would-be churners the offer a
 STAYER_REDEEM_RATE = 1.0    # ASSUMPTION: share of non-churners who use the discount anyway (worst case)
 SENSITIVITY_RESPONSE_RATES = [0.05, 0.10, 0.20, 0.30]
 SENSITIVITY_DISCOUNT_RATES = [0.05, 0.10, 0.20]
+SENSITIVITY_REDEEM_RATES = [0.3, 0.5, 1.0]
 TOP_N_SHARE = 0.20          # strategy (b): contact the 20% highest churn-risk customers
 PRIORITY_LIST_SIZE = 50
 

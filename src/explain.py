@@ -103,25 +103,38 @@ def describe_value(column, value):
     return f"{config.FEATURE_LABELS.get(column, column)} = {value}"
 
 
+def explain_table(table, bundle=None, encoder=None, top_k=4):
+    """Explain many customers at once. Returns (churn probabilities, list of sentence lists), one per row.
+
+    `table` has raw features + segment_name. One SHAP call for all rows keeps batch prediction fast.
+    """
+    if bundle is None or encoder is None:
+        bundle, encoder = load_churn_parts()
+    inputs = model_inputs(table, bundle, encoder)
+    shap_values = shap.TreeExplainer(bundle["model"].named_steps["model"])(inputs).values
+    probabilities = bundle["model"].predict_proba(inputs)[:, 1]
+    shown = display_values(table, bundle, encoder)
+
+    all_sentences = []
+    for i in range(len(table)):
+        contributions = pd.Series(shap_values[i], index=bundle["features"])
+        sentences = []
+        for column in contributions.abs().sort_values(ascending=False).index[:top_k]:
+            direction = "raises risk" if contributions[column] > 0 else "lowers risk"
+            sentences.append(f"{describe_value(column, shown.iloc[i][column])} -> {direction}")
+        all_sentences.append(sentences)
+    return probabilities, all_sentences
+
+
 def explain_customer(row, bundle=None, encoder=None, top_k=4):
     """Explain one customer's churn risk in plain English.
 
     `row` is one row of a customer table (raw features + segment_name), e.g. table.loc[[customer_id]].
     Returns (churn probability, list of sentences), strongest reasons first.
     """
-    if bundle is None or encoder is None:
-        bundle, encoder = load_churn_parts()
     table = row if isinstance(row, pd.DataFrame) else row.to_frame().T
-    explanation = shap.TreeExplainer(bundle["model"].named_steps["model"])(model_inputs(table, bundle, encoder))
-    contributions = pd.Series(explanation.values[0], index=bundle["features"])
-    shown = display_values(table, bundle, encoder).iloc[0]
-    probability = float(bundle["model"].predict_proba(model_inputs(table, bundle, encoder))[0, 1])
-
-    sentences = []
-    for column in contributions.abs().sort_values(ascending=False).index[:top_k]:
-        direction = "raises risk" if contributions[column] > 0 else "lowers risk"
-        sentences.append(f"{describe_value(column, shown[column])} -> {direction}")
-    return probability, sentences
+    probabilities, sentences = explain_table(table, bundle, encoder, top_k)
+    return float(probabilities[0]), sentences[0]
 
 
 def cart_rules(train_df, test_df, features):

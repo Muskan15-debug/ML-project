@@ -1,5 +1,30 @@
 # Results notes
 
+## Main business finding
+
+Backtest on the test snapshot (2,658 active customers, June-November 2011). The offer is a discount; margin,
+discount, response rate, stayer redeem rate and contact cost are ASSUMPTIONS (defaults: 30% margin, 10% discount,
+20% response, 100% of stayers redeem, 1 GBP per contact).
+
+- **Mailing everyone loses heavily.** At the defaults it would lose about 306,651 GBP, mostly discount given to
+  customers who would have stayed anyway. Across all 36 tested assumption combinations it never wins and loses up to
+  about 694,000 GBP.
+- **Model-based targeting avoids most of that loss.** Contacting only the customers the models pick keeps the loss
+  small at the defaults (top 20% by risk -958 GBP, profit rule -8,285 GBP, priority offers -5,717 GBP), so about 97%
+  or more of the "mail everyone" loss is avoided.
+- **Discount campaigns only pay off when the discount is small and the response is high.** The profit rule makes money
+  with a 5% discount once 10-20% or more of churners respond (best case +56,744 GBP), and with a 10% discount only when
+  few stayers redeem it and response is high. With a 20% discount almost nothing pays.
+- **The system can tell the business when NOT to run a campaign.** At the defaults, and in 17 of 36 combinations,
+  the best choice is no campaign at all.
+
+Why the profit rule underperformed its own estimate on test (it expected +5,956 GBP for its 809 customers but got
+-8,285 GBP):
+1. **Churn probabilities are too high:** the customers it picked had a mean predicted churn probability of 0.828, but
+   only 0.737 really churned, so more discounts went to customers who stayed.
+2. **Stayers spend more than predicted:** they spent 961 GBP on average vs 632 GBP predicted (season mismatch), so
+   each wasted discount cost more than planned.
+
 ## Known issues
 
 - **Churn rate differs between snapshots.** Train (cutoff 2010-12-01) churn rate is 0.62; test

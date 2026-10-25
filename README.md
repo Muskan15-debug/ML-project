@@ -35,3 +35,32 @@ This creates `data/processed/transactions_raw.parquet`.
 
 All paths, cutoff dates, window lengths, the random seed and business assumptions
 (offer cost, response rate) are in `src/config.py`.
+
+## Train all models
+
+```bash
+python src/train.py
+```
+
+Runs everything from the raw file to the saved models in `models/` (about 1.5 minutes):
+cleaning (if needed), train/test tables, K-Means segments, feature selection, churn model,
+two-part spend model, decision thresholds and the training medians used by the app.
+
+## Predict
+
+```python
+from predict import predict_customer, predict_batch   # run with src/ on the path
+
+predict_customer({"recency": 85, "frequency": 3, "monetary": 240, "tenure_days": 200})
+predict_batch(pandas_dataframe_with_the_same_columns)
+```
+
+Required inputs: `recency`, `frequency`, `monetary`. Optional: `tenure_days`, `avg_gap_days`,
+`unique_products`, `return_rate`, `is_uk`. Values that are not given are derived with the training
+rules or filled with training medians, and the result lists which ones were assumed.
+
+## Tests
+
+```bash
+python -m pytest tests
+```

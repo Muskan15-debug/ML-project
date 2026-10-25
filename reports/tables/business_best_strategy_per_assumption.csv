@@ -1,0 +1,37 @@
+stayer_redeem_rate,discount_rate,response_rate,strategy,contacted,net_profit
+0.3,0.05,0.05,(b) Top 20% highest churn risk,532,749.4110413945612
+0.3,0.05,0.1,(c) Profit rule (expected_net > 0),1906,8863.869750721014
+0.3,0.05,0.2,(c) Profit rule (expected_net > 0),2288,31962.779334051702
+0.3,0.05,0.3,(c) Profit rule (expected_net > 0),2383,56743.900504353594
+0.3,0.1,0.05,(e) No campaign,0,0.0
+0.3,0.1,0.1,(b) Top 20% highest churn risk,532,996.0011062312974
+0.3,0.1,0.2,(c) Profit rule (expected_net > 0),1737,11158.304487519068
+0.3,0.1,0.3,(c) Profit rule (expected_net > 0),2065,28452.558956359273
+0.3,0.2,0.05,(e) No campaign,0,0.0
+0.3,0.2,0.1,(d) Priority offers only,8,39.06509526568384
+0.3,0.2,0.2,(e) No campaign,0,0.0
+0.3,0.2,0.3,(b) Top 20% highest churn risk,532,454.3602593469441
+0.5,0.05,0.05,(e) No campaign,0,0.0
+0.5,0.05,0.1,(c) Profit rule (expected_net > 0),1453,3110.191717045969
+0.5,0.05,0.2,(c) Profit rule (expected_net > 0),2059,23284.604449700586
+0.5,0.05,0.3,(c) Profit rule (expected_net > 0),2253,45965.14704471043
+0.5,0.1,0.05,(e) No campaign,0,0.0
+0.5,0.1,0.1,(e) No campaign,0,0.0
+0.5,0.1,0.2,(b) Top 20% highest churn risk,532,3394.429812462595
+0.5,0.1,0.3,(c) Profit rule (expected_net > 0),1665,14847.555325519359
+0.5,0.2,0.05,(e) No campaign,0,0.0
+0.5,0.2,0.1,(e) No campaign,0,0.0
+0.5,0.2,0.2,(e) No campaign,0,0.0
+0.5,0.2,0.3,(e) No campaign,0,0.0
+1.0,0.05,0.05,(e) No campaign,0,0.0
+1.0,0.05,0.1,(b) Top 20% highest churn risk,532,289.9668827891219
+1.0,0.05,0.2,(c) Profit rule (expected_net > 0),1499,7542.5608097720615
+1.0,0.05,0.3,(c) Profit rule (expected_net > 0),1888,26830.356330694027
+1.0,0.1,0.05,(e) No campaign,0,0.0
+1.0,0.1,0.1,(e) No campaign,0,0.0
+1.0,0.1,0.2,(e) No campaign,0,0.0
+1.0,0.1,0.3,(b) Top 20% highest churn risk,532,3181.57571869389
+1.0,0.2,0.05,(e) No campaign,0,0.0
+1.0,0.2,0.1,(e) No campaign,0,0.0
+1.0,0.2,0.2,(e) No campaign,0,0.0
+1.0,0.2,0.3,(d) Priority offers only,7,57.51811140081759

@@ -19,11 +19,13 @@ import sys
 from pathlib import Path
 
 import joblib
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
 sys.path.append(str(Path(__file__).resolve().parent))
 import config
+from eda import save_matplotlib
 from feature_selection import make_model_matrix
 from hurdle_model import amount_gbp, predict_hurdle
 
@@ -126,6 +128,8 @@ def recommend_action(churn_prob, expected_spend, conditional_amount, segment, th
               f"{'HIGH' if high_value else 'low'} (split {thresholds['value_threshold']:,.0f} GBP). "
               f"Expected net profit of a {assumptions['discount_rate']:.0%} discount offer: {net:,.0f} GBP "
               f"-> profit rule {'passes' if profit_ok else 'fails'}.")
+    if not (high_value and high_risk):
+        reason += " Discount offers are only considered for high-value, high-risk customers."
     return action, reason
 
 
@@ -181,19 +185,55 @@ def backtest(scores, churned, actual_spend, thresholds, assumptions=None):
     return pd.DataFrame(rows)
 
 
-def sensitivity(scores, churned, actual_spend, thresholds, response_rates=None, discount_rates=None):
-    """Net profit of each strategy over several response rates and discount rates (both ASSUMPTIONS).
+def sensitivity(scores, churned, actual_spend, thresholds, response_rates=None, discount_rates=None,
+                redeem_rates=None):
+    """Net profit of each strategy over response, discount and stayer-redeem rates (all ASSUMPTIONS).
 
     The profit rule and the priority offers are re-decided for every combination.
     """
     rows = []
-    for discount in discount_rates or config.SENSITIVITY_DISCOUNT_RATES:
-        for rate in response_rates or config.SENSITIVITY_RESPONSE_RATES:
-            assumptions = {**default_assumptions(), "response_rate": rate, "discount_rate": discount}
-            for r in backtest(scores, churned, actual_spend, thresholds, assumptions).itertuples():
-                rows.append({"discount_rate": discount, "response_rate": rate, "strategy": r.strategy,
-                             "contacted": r.contacted, "net_profit": r.net_profit})
+    for redeem in redeem_rates or config.SENSITIVITY_REDEEM_RATES:
+        for discount in discount_rates or config.SENSITIVITY_DISCOUNT_RATES:
+            for rate in response_rates or config.SENSITIVITY_RESPONSE_RATES:
+                assumptions = {**default_assumptions(), "response_rate": rate, "discount_rate": discount,
+                               "stayer_redeem_rate": redeem}
+                for r in backtest(scores, churned, actual_spend, thresholds, assumptions).itertuples():
+                    rows.append({"stayer_redeem_rate": redeem, "discount_rate": discount, "response_rate": rate,
+                                 "strategy": r.strategy, "contacted": r.contacted, "net_profit": r.net_profit})
     return pd.DataFrame(rows)
+
+
+def best_strategy_per_combination(sens):
+    """For every assumption combination, the strategy with the highest net profit (ties: fewest contacts)."""
+    keys = ["stayer_redeem_rate", "discount_rate", "response_rate"]
+    ordered = sens.sort_values(keys + ["net_profit", "contacted"], ascending=[True, True, True, False, True])
+    best = ordered.groupby(keys, as_index=False).first()[keys + ["strategy", "contacted", "net_profit"]]
+    # If the best option contacts nobody (e.g. the profit rule picks 0 customers), that IS "no campaign".
+    best.loc[best["contacted"] == 0, "strategy"] = "(e) No campaign"
+    return best
+
+
+def plot_headline(impact):
+    """Save a bar chart of net profit per strategy at the default assumptions."""
+    fig, ax = plt.subplots(figsize=(9, 4.5))
+    colors = ["#c0392b" if value < 0 else "#27ae60" for value in impact["net_profit"]]
+    ax.barh(impact["strategy"], impact["net_profit"] / 1000, color=colors)
+    longest = impact["net_profit"].abs().max()
+    for y, value in enumerate(impact["net_profit"]):
+        label = f" {value:,.0f} GBP "
+        if value < 0 and abs(value) > 0.3 * longest:
+            # Long bar: write the label inside the bar so it does not collide with the axis labels.
+            ax.text(value / 1000, y, label, va="center", ha="left", fontsize=9, color="white")
+        else:
+            ax.text(value / 1000, y, label, va="center", ha="right" if value < 0 else "left", fontsize=9)
+    ax.axvline(0, color="black", linewidth=0.8)
+    ax.invert_yaxis()
+    ax.set_xlabel("Net profit on TEST (thousand GBP)")
+    a = default_assumptions()
+    ax.set_title(f"Campaign backtest at default assumptions (ASSUMED: {a['discount_rate']:.0%} discount, "
+                 f"{a['response_rate']:.0%} response, {a['stayer_redeem_rate']:.0%} stayer redeem)", fontsize=10)
+    save_matplotlib(fig, "business_net_profit_by_strategy")
+    return fig
 
 
 def priority_list(scores, n=config.PRIORITY_LIST_SIZE):
