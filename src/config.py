@@ -95,6 +95,14 @@ N_SELECTED_FEATURES = 8           # each ranking method keeps its top 8
 SEGMENT_ENCODER = MODELS_DIR / "segment_encoder.pkl"
 SELECTED_FEATURES_JSON = MODELS_DIR / "selected_features.json"
 
+# ---------- Churn models ----------
+CV_FOLDS = 5
+CV_SCORING = "roc_auc"            # ranking quality; does not depend on a 0.5 threshold
+DECISION_THRESHOLD = 0.5          # default threshold for precision/recall/F1 (tuned by cost in Phase 9)
+LEAKAGE_ALARM_ROC_AUC = 0.90      # a test ROC-AUC above this is suspicious and must be checked
+LIFT_TOP_SHARES = [0.10, 0.20]
+CHURN_MODEL = MODELS_DIR / "churn_model.pkl"
+
 TRAIN_TABLE_PARQUET = PROCESSED_DIR / "train_table.parquet"
 TEST_TABLE_PARQUET = PROCESSED_DIR / "test_table.parquet"
 
