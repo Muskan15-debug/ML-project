@@ -213,8 +213,8 @@ def best_strategy_per_combination(sens):
     return best
 
 
-def plot_headline(impact):
-    """Save a bar chart of net profit per strategy at the default assumptions."""
+def plot_headline(impact, assumptions=None, save=True):
+    """Bar chart of net profit per strategy. Saved to reports/figures/ unless save=False (used by the app)."""
     fig, ax = plt.subplots(figsize=(9, 4.5))
     colors = ["#c0392b" if value < 0 else "#27ae60" for value in impact["net_profit"]]
     ax.barh(impact["strategy"], impact["net_profit"] / 1000, color=colors)
@@ -229,10 +229,11 @@ def plot_headline(impact):
     ax.axvline(0, color="black", linewidth=0.8)
     ax.invert_yaxis()
     ax.set_xlabel("Net profit on TEST (thousand GBP)")
-    a = default_assumptions()
-    ax.set_title(f"Campaign backtest at default assumptions (ASSUMED: {a['discount_rate']:.0%} discount, "
+    a = assumptions or default_assumptions()
+    ax.set_title(f"Campaign backtest on TEST (ASSUMED: {a['discount_rate']:.0%} discount, "
                  f"{a['response_rate']:.0%} response, {a['stayer_redeem_rate']:.0%} stayer redeem)", fontsize=10)
-    save_matplotlib(fig, "business_net_profit_by_strategy")
+    if save:
+        save_matplotlib(fig, "business_net_profit_by_strategy")
     return fig
 
 

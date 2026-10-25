@@ -5,14 +5,19 @@ Uses ONLY the saved files written by train.py:
   spend_model.pkl (two-part model, via hurdle_model.predict_hurdle), decision_thresholds.json,
   training_medians.json.
 
-Inputs (column / key names):
-  required: recency (days since last order), frequency (number of orders), monetary (total spent, GBP)
-  optional: tenure_days, avg_gap_days, unique_products, return_rate, is_uk,
-            and (advanced) spend_trend, purchase_regularity
-  avg_order_value is ALWAYS calculated as monetary / frequency, never typed.
+Inputs (column / key names), all things a shop owner can look up:
+  recency          days since last order
+  frequency        number of orders
+  monetary         total spent (GBP)
+  tenure_days      days since first order (may be left out for a customer with one order)
+  unique_products  number of different products bought
+  spend_last_3m    spend in the last 3 months (GBP)
+  returned_orders  number of returned / cancelled orders
+  is_uk            customer in the UK (1 / 0, or yes / no)
+  optional, advanced: purchase_regularity (spread of days between orders)
 
-Every value that was not typed is either DERIVED (calculated exactly with the same rule as training)
-or ASSUMED (filled with a TRAINING median). Both are reported back.
+CALCULATED with the same rules as training: avg_order_value, avg_gap_days, spend_trend, return_rate,
+is_single_order. Only purchase_regularity can be ASSUMED (TRAINING median), and it is reported as assumed.
 """
 
 import json
@@ -29,9 +34,17 @@ from explain import explain_table, load_churn_parts
 from feature_builder import FEATURE_COLUMNS
 from segmentation import assign_segment, load_segmentation
 
-REQUIRED_FIELDS = ["recency", "frequency", "monetary"]
-OPTIONAL_FIELDS = ["tenure_days", "avg_gap_days", "unique_products", "return_rate", "is_uk",
-                   "spend_trend", "purchase_regularity"]
+INPUT_FIELDS = {
+    "recency": "Days since last order",
+    "frequency": "Number of orders",
+    "monetary": "Total spent (GBP)",
+    "tenure_days": "Days since first order",
+    "unique_products": "Number of different products bought",
+    "spend_last_3m": "Spend in the last 3 months (GBP)",
+    "returned_orders": "Number of returned / cancelled orders",
+    "is_uk": "Customer in the UK (1 = yes, 0 = no)",
+}
+REQUIRED_FIELDS = list(INPUT_FIELDS)
 WIN_BACK_WARNING = ("outside the training population - this is a win-back case, prediction is unreliable "
                     f"(the models were trained only on customers who bought in the last {config.ACTIVE_WINDOW_DAYS} days)")
 
@@ -55,24 +68,50 @@ def _given(inputs, key):
     return value is not None and not (isinstance(value, float) and pd.isna(value)) and value != ""
 
 
+def _to_flag(value):
+    """Turn 1/0, True/False or yes/no into 1 or 0."""
+    if isinstance(value, str):
+        text = value.strip().lower()
+        if text in {"yes", "y", "true", "1", "uk"}:
+            return 1
+        if text in {"no", "n", "false", "0"}:
+            return 0
+        raise ValueError(f"customer in UK must be yes/no or 1/0, got '{value}'")
+    return int(bool(value))
+
+
 def build_feature_row(inputs, medians):
     """Turn one input dict into the 12 model features.
 
     Returns (features dict, filled dict {feature: (value, 'derived' or 'assumed', explanation)}, warnings list).
-    Raises ValueError for impossible inputs.
+    Raises ValueError for missing or impossible inputs.
     """
-    for key in REQUIRED_FIELDS:
-        if not _given(inputs, key):
-            raise ValueError(f"'{key}' is required")
-    recency, frequency, monetary = float(inputs["recency"]), float(inputs["frequency"]), float(inputs["monetary"])
-    if recency < 0:
-        raise ValueError("recency (days since last order) cannot be negative")
-    if frequency < 1 or frequency != int(frequency):
-        raise ValueError("frequency (number of orders) must be a whole number >= 1")
-    if monetary <= 0:
-        raise ValueError("monetary (total spent) must be above 0")
+    one_order = _given(inputs, "frequency") and float(inputs["frequency"]) == 1
+    missing = [INPUT_FIELDS[k] for k in REQUIRED_FIELDS
+               if not _given(inputs, k) and not (k == "tenure_days" and one_order)]
+    if missing:
+        raise ValueError("missing: " + ", ".join(missing))
 
-    features = {"recency": recency, "frequency": frequency, "monetary": monetary}
+    recency, frequency, monetary = float(inputs["recency"]), float(inputs["frequency"]), float(inputs["monetary"])
+    unique_products, spend_last_3m = float(inputs["unique_products"]), float(inputs["spend_last_3m"])
+    returned = float(inputs["returned_orders"])
+    if recency < 0:
+        raise ValueError("days since last order cannot be negative")
+    if frequency < 1 or frequency != int(frequency):
+        raise ValueError("number of orders must be a whole number of at least 1")
+    if monetary <= 0:
+        raise ValueError("total spent must be above 0 GBP")
+    if unique_products < 1:
+        raise ValueError("number of different products must be at least 1")
+    if returned < 0:
+        raise ValueError("number of returned orders cannot be negative")
+    if spend_last_3m < 0:
+        raise ValueError("spend in the last 3 months cannot be negative")
+    if spend_last_3m > monetary + 0.01:
+        raise ValueError("spend in the last 3 months cannot be larger than total spent")
+
+    features = {"recency": recency, "frequency": frequency, "monetary": monetary,
+                "unique_products": unique_products, "is_uk": _to_flag(inputs["is_uk"])}
     filled, warnings = {}, []
     trend_days = config.TREND_WINDOW_MONTHS * config.DAYS_PER_MONTH
 
@@ -80,69 +119,70 @@ def build_feature_row(inputs, medians):
         features[name] = value
         filled[name] = (value, kind, why)
 
-    # Average order value is always calculated, never typed (agreed rule).
+    # Days since first order.
+    if frequency == 1:
+        if _given(inputs, "tenure_days") and abs(float(inputs["tenure_days"]) - recency) > 0.5:
+            warnings.append(f"with only one order, days since first order must equal days since last order; "
+                            f"using {recency:.0f} instead of {float(inputs['tenure_days']):.0f}")
+        fill("tenure_days", recency, "derived", "one order: first order = last order")
+    else:
+        features["tenure_days"] = float(inputs["tenure_days"])
+        # Equal is allowed: some real customers placed several orders on the same day.
+        if features["tenure_days"] < recency:
+            raise ValueError("days since first order cannot be smaller than days since last order")
+
+    # +1 day margin: three calendar months can be up to 92 days long.
+    if recency > trend_days + 1 and spend_last_3m > 0:
+        raise ValueError(f"spend in the last 3 months must be 0 when the last order was {recency:.0f} days ago "
+                         f"(more than 3 months)")
+    if features["tenure_days"] < trend_days - 1 and abs(spend_last_3m - monetary) > 0.01:
+        warnings.append("the first order is within the last 3 months, so all spend should be in the last 3 months; "
+                        "spend in the last 3 months was typed lower than total spent")
+
+    # Calculated values (same rules as the training feature builder).
     fill("avg_order_value", monetary / frequency, "derived", "total spent / number of orders")
     fill("is_single_order", int(frequency == 1), "derived", "1 if only one order")
-
-    # Tenure (days since first order).
-    if _given(inputs, "tenure_days"):
-        features["tenure_days"] = float(inputs["tenure_days"])
-    elif frequency == 1:
-        fill("tenure_days", recency, "derived", "with one order, first order = last order")
-    elif _given(inputs, "avg_gap_days"):
-        fill("tenure_days", recency + float(inputs["avg_gap_days"]) * (frequency - 1), "derived",
-             "recency + average gap x (orders - 1)")
-    else:
-        fill("tenure_days", max(recency, medians["tenure_per_order_days"] * frequency), "assumed",
-             "training median days per order x number of orders")
-    if features["tenure_days"] < recency:
-        raise ValueError("days since first order (tenure) cannot be smaller than days since last order (recency)")
-    if frequency > 1 and features["tenure_days"] == recency:
-        raise ValueError("with more than one order, the first order must be earlier than the last order")
-
-    # Average gap between orders: in training it is exactly (tenure - recency) / (orders - 1).
     if frequency == 1:
         fill("avg_gap_days", recency, "derived", "one order: gap so far = days since that order (training rule)")
     else:
-        gap = (features["tenure_days"] - recency) / (frequency - 1)
-        if _given(inputs, "avg_gap_days") and abs(float(inputs["avg_gap_days"]) - gap) > 1:
-            warnings.append(f"typed average gap {float(inputs['avg_gap_days']):.1f} days does not match "
-                            f"(tenure - recency) / (orders - 1) = {gap:.1f} days; using {gap:.1f} (training formula)")
-        fill("avg_gap_days", gap, "derived", "(tenure - recency) / (orders - 1)")
+        fill("avg_gap_days", (features["tenure_days"] - recency) / (frequency - 1), "derived",
+             "(days since first order - days since last order) / (orders - 1)")
+    fill("spend_trend", spend_last_3m / monetary, "derived", "spend in last 3 months / total spent")
+    fill("return_rate", returned / (frequency + returned), "derived", "returned / (orders + returned)")
 
-    # Spread of the gaps between orders.
+    # Spread of the gaps between orders: the only value that may be assumed.
     if _given(inputs, "purchase_regularity"):
         features["purchase_regularity"] = float(inputs["purchase_regularity"])
     elif frequency <= 2:
         fill("purchase_regularity", 0.0, "derived", "fewer than 3 orders: no spread can be measured (training rule)")
     else:
         fill("purchase_regularity", medians["purchase_regularity_3plus_orders"], "assumed",
-             "training median for customers with 3+ orders")
-
-    # Share of spend in the last 3 months.
-    if _given(inputs, "spend_trend"):
-        features["spend_trend"] = float(inputs["spend_trend"])
-    elif recency > trend_days:
-        fill("spend_trend", 0.0, "derived", "no order in the last 3 months")
-    elif features["tenure_days"] <= trend_days:
-        fill("spend_trend", 1.0, "derived", "all orders are within the last 3 months")
-    else:
-        fill("spend_trend", medians["spend_trend_mixed_history"], "assumed",
-             "training median for customers with orders both before and inside the last 3 months")
-
-    for name, default_kind, why in [("unique_products", "assumed", "training median"),
-                                    ("return_rate", "assumed", "training median"),
-                                    ("is_uk", "assumed", "training median (most customers are UK)")]:
-        if _given(inputs, name):
-            features[name] = float(inputs[name])
-        else:
-            fill(name, medians[name], default_kind, why)
+             "cannot be typed; training median for customers with 3+ orders")
 
     if recency > config.ACTIVE_WINDOW_DAYS:
         warnings.append(WIN_BACK_WARNING)
     if frequency == 1:
         warnings.append("only one order: several values are set by rule, so confidence is lower")
     return {name: features[name] for name in FEATURE_COLUMNS}, filled, warnings
+
+
+def table_to_inputs(table, include_regularity=False):
+    """Turn a customer feature table (e.g. the test table) into form-style inputs, one row per customer."""
+    inputs = pd.DataFrame({
+        "customer_id": table.index,
+        "recency": table["recency"].round(1).values,
+        "frequency": table["frequency"].values,
+        "monetary": table["monetary"].round(2).values,
+        "tenure_days": table["tenure_days"].round(1).values,
+        "unique_products": table["unique_products"].values,
+        "spend_last_3m": (table["spend_trend"] * table["monetary"]).round(2).values,
+        # return_rate = returned / (orders + returned)  ->  returned = rate x orders / (1 - rate)
+        "returned_orders": (table["return_rate"] * table["frequency"] / (1 - table["return_rate"])).round().values,
+        "is_uk": table["is_uk"].values,
+    })
+    if include_regularity:
+        inputs["purchase_regularity"] = table["purchase_regularity"].values
+    return inputs
 
 
 def risk_level(probability, thresholds):
@@ -237,5 +277,6 @@ def predict_batch(df):
 
 
 if __name__ == "__main__":
-    example = {"recency": 85, "frequency": 3, "monetary": 240, "avg_gap_days": 40, "tenure_days": 200}
+    example = {"recency": 85, "frequency": 3, "monetary": 240, "tenure_days": 200, "unique_products": 6,
+               "spend_last_3m": 80, "returned_orders": 0, "is_uk": 1}
     print(json.dumps(predict_customer(example), indent=2))
