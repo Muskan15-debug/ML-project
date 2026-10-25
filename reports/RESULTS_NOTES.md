@@ -32,3 +32,18 @@
   training set to cover both seasons. This would need customer-grouped cross-validation.
 - **Bar to beat.** Recency alone gives ROC-AUC about 0.66 for churn (0.661 train, 0.660 test).
   *Phase 5:* include this recency-only baseline in the model comparison table.
+- **Old flat-cost profit rule replaced (Phase 7).** With a flat 5 GBP offer cost, every customer's expected loss was
+  above the cost, so the rule equalled "mail everyone". It was replaced by a discount cost model:
+  expected_net = p x response x amount x (margin - discount) - (1 - p) x stayer_redeem x discount x amount - contact_cost,
+  send only if expected_net > 0. All five inputs are ASSUMPTIONS (margin 30%, discount 10%, contact 1 GBP,
+  response 20%, stayer redeem 100% = worst case).
+- **Backtest result: at the default assumptions, no campaign is best.** On test every strategy loses money:
+  mail everyone -306,651 GBP, profit rule -8,285, priority offers -5,717, top 20% by risk -958, no campaign 0.
+  Over 12 combinations of response rate (5-30%) and discount (5-20%), "no campaign" is best or tied in 7; the profit
+  rule wins only with a 5% discount and 20-30% response (+7,543 / +26,830 GBP).
+- **The profit rule is too optimistic on test.** It expected +5,956 GBP for its 809 customers but got -8,285 GBP:
+  their mean predicted churn probability was 0.828 vs 0.737 actual, and stayers spent 961 GBP on average vs 632
+  predicted (season mismatch), so the wasted discounts cost more than planned. The 100% stayer redeem rate is a worst
+  case; a real rate below 100% would make campaigns look better.
+- **Churn probabilities on test:** the final XGBoost model predicts a mean of 0.55 vs an actual test churn rate
+  of 0.50 (Phase 5/7). The risk split (TRAIN median 68.9%) therefore puts fewer test customers in "high risk".

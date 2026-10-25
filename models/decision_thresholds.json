@@ -1,0 +1,13 @@
+{
+  "risk_threshold": 0.689228355884552,
+  "value_threshold": 349.97536538195817,
+  "split_rule": "medians of TRAIN churn probability and TRAIN expected spend",
+  "profit_rule": "send retention offer only if expected_net > 0, where expected_net = p*response_rate*amount*(gross_margin-discount_rate) - (1-p)*stayer_redeem_rate*discount_rate*amount - contact_cost",
+  "assumptions": {
+    "response_rate": 0.2,
+    "discount_rate": 0.1,
+    "gross_margin": 0.3,
+    "contact_cost": 1.0,
+    "stayer_redeem_rate": 1.0
+  }
+}

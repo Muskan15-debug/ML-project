@@ -1,0 +1,25 @@
+CART decision tree (max depth 3) for churn, trained on TRAIN.
+weights = [customers who stay, customers who churn] in each leaf. Test ROC-AUC: 0.735
+
+|--- Number of orders <= 4.5
+|   |--- Variation in days between orders <= 0.5
+|   |   |--- Days since last order <= 57.5
+|   |   |   |--- weights: [214.0, 696.0] class: churns
+|   |   |--- Days since last order >  57.5
+|   |   |   |--- weights: [82.0, 569.0] class: churns
+|   |--- Variation in days between orders >  0.5
+|   |   |--- Days since first order <= 156.4
+|   |   |   |--- weights: [84.0, 71.0] class: stays
+|   |   |--- Days since first order >  156.4
+|   |   |   |--- weights: [202.0, 457.0] class: churns
+|--- Number of orders >  4.5
+|   |--- In Champions segment <= 0.5
+|   |   |--- Variation in days between orders <= 33.2
+|   |   |   |--- weights: [155.0, 92.0] class: stays
+|   |   |--- Variation in days between orders >  33.2
+|   |   |   |--- weights: [160.0, 163.0] class: churns
+|   |--- In Champions segment >  0.5
+|   |   |--- Share of spend in last 3 months <= 0.1
+|   |   |   |--- weights: [12.0, 19.0] class: churns
+|   |   |--- Share of spend in last 3 months >  0.1
+|   |   |   |--- weights: [409.0, 80.0] class: stays

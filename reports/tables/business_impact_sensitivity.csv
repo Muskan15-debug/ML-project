@@ -1,0 +1,61 @@
+discount_rate,response_rate,strategy,contacted,net_profit
+0.05,0.05,(a) Mail everyone,2658,-162979.77367941738
+0.05,0.05,(b) Top 20% highest churn risk,532,-2297.0855586054395
+0.05,0.05,(c) Profit rule (expected_net > 0),357,-1396.0760883606908
+0.05,0.05,(d) Priority offers only,33,-441.7033316769346
+0.05,0.05,(e) No campaign,0,0.0
+0.05,0.1,(a) Mail everyone,2658,-149104.5723588348
+0.05,0.1,(b) Top 20% highest churn risk,532,289.9668827891219
+0.05,0.1,(c) Profit rule (expected_net > 0),942,-4175.399569369789
+0.05,0.1,(d) Priority offers only,129,-3859.7789251898994
+0.05,0.1,(e) No campaign,0,0.0
+0.05,0.2,(a) Mail everyone,2658,-121354.16971766955
+0.05,0.2,(b) Top 20% highest churn risk,532,5464.071765578245
+0.05,0.2,(c) Profit rule (expected_net > 0),1499,7542.5608097720615
+0.05,0.2,(d) Priority offers only,129,-1396.620850379798
+0.05,0.2,(e) No campaign,0,0.0
+0.05,0.3,(a) Mail everyone,2658,-93603.76707650433
+0.05,0.3,(b) Top 20% highest churn risk,532,10638.176648367365
+0.05,0.3,(c) Profit rule (expected_net > 0),1888,26830.356330694027
+0.05,0.3,(d) Priority offers only,129,1066.5372244303062
+0.05,0.3,(e) No campaign,0,0.0
+0.1,0.05,(a) Mail everyone,2658,-339951.7889435339
+0.1,0.05,(b) Top 20% highest churn risk,532,-7166.634046884353
+0.1,0.05,(c) Profit rule (expected_net > 0),0,0.0
+0.1,0.05,(d) Priority offers only,0,0.0
+0.1,0.05,(e) No campaign,0,0.0
+0.1,0.1,(a) Mail everyone,2658,-328851.62788706785
+0.1,0.1,(b) Top 20% highest churn risk,532,-5096.992093768704
+0.1,0.1,(c) Profit rule (expected_net > 0),293,-1385.270012353486
+0.1,0.1,(d) Priority offers only,17,-304.30729915818034
+0.1,0.1,(e) No campaign,0,0.0
+0.1,0.2,(a) Mail everyone,2658,-306651.30577413563
+0.1,0.2,(b) Top 20% highest churn risk,532,-957.708187537406
+0.1,0.2,(c) Profit rule (expected_net > 0),809,-8284.752967666205
+0.1,0.2,(d) Priority offers only,96,-5717.080469790086
+0.1,0.2,(e) No campaign,0,0.0
+0.1,0.3,(a) Mail everyone,2658,-284450.98366120347
+0.1,0.3,(b) Top 20% highest churn risk,532,3181.57571869389
+0.1,0.3,(c) Profit rule (expected_net > 0),1136,-5706.101726778263
+0.1,0.3,(d) Priority offers only,129,-6605.29462045576
+0.1,0.3,(e) No campaign,0,0.0
+0.2,0.05,(a) Mail everyone,2658,-693895.8194717669
+0.2,0.05,(b) Top 20% highest churn risk,532,-16905.73102344218
+0.2,0.05,(c) Profit rule (expected_net > 0),0,0.0
+0.2,0.05,(d) Priority offers only,0,0.0
+0.2,0.05,(e) No campaign,0,0.0
+0.2,0.1,(a) Mail everyone,2658,-688345.738943534
+0.2,0.1,(b) Top 20% highest churn risk,532,-15870.910046884355
+0.2,0.1,(c) Profit rule (expected_net > 0),0,0.0
+0.2,0.1,(d) Priority offers only,0,0.0
+0.2,0.1,(e) No campaign,0,0.0
+0.2,0.2,(a) Mail everyone,2658,-677245.5778870678
+0.2,0.2,(b) Top 20% highest churn risk,532,-13801.268093768707
+0.2,0.2,(c) Profit rule (expected_net > 0),60,-843.049082427308
+0.2,0.2,(d) Priority offers only,0,0.0
+0.2,0.2,(e) No campaign,0,0.0
+0.2,0.3,(a) Mail everyone,2658,-666145.4168306018
+0.2,0.3,(b) Top 20% highest churn risk,532,-11731.626140653058
+0.2,0.3,(c) Profit rule (expected_net > 0),182,-1021.7285316854072
+0.2,0.3,(d) Priority offers only,7,57.51811140081759
+0.2,0.3,(e) No campaign,0,0.0

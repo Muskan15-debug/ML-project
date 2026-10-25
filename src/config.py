@@ -121,5 +121,39 @@ RANDOM_STATE = 42
 N_JOBS = 1
 
 # ---------- Business assumptions (NOT from data; change if you have real values) ----------
-OFFER_COST = 5.0            # ASSUMPTION: cost in GBP of sending one retention offer
-OFFER_RESPONSE_RATE = 0.20  # ASSUMPTION: share of contacted churners the offer actually retains
+# The offer is a discount. Its real cost is the discount given away, including to customers who
+# would have stayed anyway, plus a small cost per contact.
+GROSS_MARGIN = 0.30         # ASSUMPTION: profit share of each GBP of sales
+DISCOUNT_RATE = 0.10        # ASSUMPTION: discount given with the retention offer (10% off)
+CONTACT_COST = 1.0          # ASSUMPTION: GBP cost of contacting one customer
+OFFER_RESPONSE_RATE = 0.20  # ASSUMPTION: share of would-be churners the offer actually retains
+STAYER_REDEEM_RATE = 1.0    # ASSUMPTION: share of non-churners who use the discount anyway (worst case)
+SENSITIVITY_RESPONSE_RATES = [0.05, 0.10, 0.20, 0.30]
+SENSITIVITY_DISCOUNT_RATES = [0.05, 0.10, 0.20]
+TOP_N_SHARE = 0.20          # strategy (b): contact the 20% highest churn-risk customers
+PRIORITY_LIST_SIZE = 50
+
+# ---------- Explanations ----------
+SHAP_SAMPLE_SIZE = 300      # test customers used for SHAP plots (keeps memory low)
+CART_RULES_DEPTH = 3        # depth of the readable CART tree
+DECISION_THRESHOLDS_JSON = MODELS_DIR / "decision_thresholds.json"
+
+# Plain-English names for features, used in plots, explanations and the app.
+FEATURE_LABELS = {
+    "recency": "Days since last order",
+    "frequency": "Number of orders",
+    "monetary": "Total spent (GBP)",
+    "avg_order_value": "Average order value (GBP)",
+    "avg_gap_days": "Average days between orders",
+    "tenure_days": "Days since first order",
+    "unique_products": "Different products bought",
+    "return_rate": "Share of orders returned",
+    "spend_trend": "Share of spend in last 3 months",
+    "purchase_regularity": "Variation in days between orders",
+    "is_uk": "UK customer",
+    "is_single_order": "Only one order",
+    "seg_Champions": "In Champions segment",
+    "seg_Loyal": "In Loyal segment",
+    "seg_One-off buyers": "In One-off buyers segment",
+    "seg_At-Risk": "In At-Risk segment",
+}
