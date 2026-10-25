@@ -103,11 +103,22 @@ LEAKAGE_ALARM_ROC_AUC = 0.90      # a test ROC-AUC above this is suspicious and 
 LIFT_TOP_SHARES = [0.10, 0.20]
 CHURN_MODEL = MODELS_DIR / "churn_model.pkl"
 
+# ---------- Spend models ----------
+SPEND_CV_SCORING = "neg_root_mean_squared_error"   # RMSE on the log1p target (used for tuning; reported too)
+# The FINAL spend model is chosen by out-of-fold CV RMSE in GBP on TRAIN, because the profit rule uses GBP.
+HIST_RATE_MIN_TENURE_DAYS = 30    # historical-rate baseline: avoid dividing by a tiny tenure
+HIST_RATE_HORIZON_DAYS = 182      # about 6 months, same length as the spend window
+LEAKAGE_ALARM_R2 = 0.90           # a test R-squared above this is suspicious and must be checked
+SPEND_MODEL = MODELS_DIR / "spend_model.pkl"
+
 TRAIN_TABLE_PARQUET = PROCESSED_DIR / "train_table.parquet"
 TEST_TABLE_PARQUET = PROCESSED_DIR / "test_table.parquet"
 
 # ---------- Reproducibility ----------
 RANDOM_STATE = 42
+
+# Parallel jobs for GridSearchCV. 1 = sequential: parallel workers were killed when the laptop was low on free RAM.
+N_JOBS = 1
 
 # ---------- Business assumptions (NOT from data; change if you have real values) ----------
 OFFER_COST = 5.0            # ASSUMPTION: cost in GBP of sending one retention offer

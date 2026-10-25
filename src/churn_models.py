@@ -104,7 +104,8 @@ def fit_with_cv(name, imbalance, X_train, y_train):
     """
     pipeline = make_pipeline(name, imbalance, y_train)
     if name in PARAM_GRIDS:
-        search = GridSearchCV(pipeline, PARAM_GRIDS[name], scoring=config.CV_SCORING, cv=cv_splitter(), n_jobs=-1)
+        search = GridSearchCV(pipeline, PARAM_GRIDS[name], scoring=config.CV_SCORING, cv=cv_splitter(),
+                          n_jobs=config.N_JOBS)
         search.fit(X_train, y_train)
         params = {k.replace("model__", ""): v for k, v in search.best_params_.items()}
         return search.best_estimator_, search.best_score_, params
